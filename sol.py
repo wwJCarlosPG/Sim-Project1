@@ -10,6 +10,19 @@ client_wait.append(inf)
 var = [exponential, normal, gumbel, laplace, logistic, rayleigh]
 
 def simulation(k, t, n, clients_wait, regression, time_wait):
+    """Inicializa las variables y controla el flujo de toda la simulación
+
+    Args:
+        k (int): Cantidad de simulaciones a realizar
+        t (float): Tiempo que están abiertos los servidores
+        n (int): Cantidad de servidores
+        clients_wait (bool): Dice si los clientes tendrán la característica de esperar una cantidad aleatoria de elementos en la cola
+        regression (bool): Dice si los clientes tendrán la característica de salir del sistema cuando los envíen a un servidor menor una cantidad aleatoria de veces
+        time_wait (bool): Dice si los clientes tendrán la característica de salir del sistema si un servidor demora más de un número aleatorio
+
+    Returns:
+        tuple: retorna una tupla con listas de todos los datos recopilados (tiempo extra, estadisticas de clientes, de servidor; para más información leer el informe)
+    """
     TIME = t
 
     # Estadisticas
@@ -42,9 +55,19 @@ def simulation(k, t, n, clients_wait, regression, time_wait):
             self.time_wait = uniform(10, 50)
 
     def arrive(arrive_time, arrive_count, servers_count, servers_history, servers_time, server_generate):
+        """Operacion a realizar cuando llega un cliente nuevo al primer servidor
+        Args:
+            arrive_time (float): Tiempo del arribo
+            arrive_count (int): Número del Cliente que arriba
+            servers_count (list): Lista donde van los Clients que estan en la cola de cada Servidor 
+            servers_history (list): Lista de diccionarios de entrada a cada Servidor
+            servers_time (list): Lista de proxima salida de cada Servidor
+            server_generate (list): Lista de variables aleatorias
+
+        Returns:
+            tuple: Devuelve actualizados los valores de arrive_time y arrive_count
         """
-        Operacion a realizar cuando llega un cliente nuevo al primer servidor
-        """
+        
         # Solo para uso auxiliar
         time = arrive_time
 
@@ -76,8 +99,15 @@ def simulation(k, t, n, clients_wait, regression, time_wait):
         return arrive_time, arrive_count
 
     def exit_server(servers_count, servers_history, servers_time, server_generate, server_jump, i):
-        """
-        Operacion a realizar cuando un cliente termina en el Servidor i
+        """Operacion a realizar cuando un cliente termina en el Servidor i
+
+        Args:
+            servers_count (list): Lista donde van los Clients que estan en la cola de cada Servidor 
+            servers_history (list): Lista de diccionarios de entrada a cada Servidor
+            servers_time (list): Lista de proxima salida de cada Servidor
+            server_generate (list): Lista de variables aleatorias
+            server_jump (float): Variable uniforme de 0.5 a 1
+            i (int): Servidor actual
         """
         # Solo para uso auxiliar
         time = servers_time[i]
@@ -133,8 +163,12 @@ def simulation(k, t, n, clients_wait, regression, time_wait):
             servers_history[j][client.id] = time
 
     def time_wait_review(servers_clients, servers_history, servers_time, min_time):
-        """
-        Revisar los clientes para eliminar los que se cansaron de esperar y abandonaron sus colas
+        """Revisar los clientes para eliminar los que se cansaron de esperar y abandonaron sus colas
+        Args:
+            servers_clients (list): Lista donde van los Clients que estan en la cola de cada Servidor
+            servers_history (list): Lista de diccionarios de entrada a cada Servidor
+            servers_time (list): Lista de proxima salida de cada Servidor
+            min_time (float): Número que representa la siguiente operación (salida o arribo)
         """
         for i in range(len(servers_clients)):
             leave = []
@@ -152,6 +186,16 @@ def simulation(k, t, n, clients_wait, regression, time_wait):
                 servers_time[i] = inf
 
     def simulate(n, server_generate, server_jump):
+        """Controla el flujo de la simulación
+
+        Args:
+            n (int): Cantidad de servidores
+            server_generate (list): Lista de variables aleatorias de los servidores
+            server_jump (int): Servidor actual
+
+        Returns:
+            float: Número que representa el tiempo de la siguiente operación
+        """
         # Inicializar variables
         # Cantidad de arribos
         arrive_count = 0
@@ -232,8 +276,12 @@ def simulation(k, t, n, clients_wait, regression, time_wait):
     return time_less, stats_finish_mode, stats_server_time, stats_server_lose
 
 def confidence(vector):
-    """
-    Devuelve la media y la desviacion estandar muestral de un vector de muestras
+    """ Devuelve la media y la desviacion estandar muestral de un vector de muestras
+    Args:
+        vector (list): Representa los valores a los que se le quiere calcular media y desviación
+
+    Returns:
+        float: Media y desviación estándar muestral de un vector de muestras
     """
     mean = sum(vector) / len(vector)
     variance = sum([(x - mean)**2 for x in vector]) / (len(vector) - 1)
